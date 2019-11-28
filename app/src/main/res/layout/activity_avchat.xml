@@ -28,6 +28,7 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/state"
         android:text="视频通话页面"
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"

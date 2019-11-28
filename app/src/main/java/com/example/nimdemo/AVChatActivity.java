@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.example.nimdemo.observer.SimpleAVChatStateObserver;
 
@@ -29,8 +33,11 @@ import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturer;
 import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturerFactory;
 
+import java.lang.ref.WeakReference;
+
 
 public class AVChatActivity extends Activity {
+
 
     public static final int FROM_BROADCASTRECEIVER = 0; // 来自广播
     public static final int FROM_INTERNAL = 1; // 来自发起方
@@ -43,10 +50,17 @@ public class AVChatActivity extends Activity {
     private AVChatSurfaceViewRenderer mtextureViewRenderer;
     private AVChatSurfaceViewRenderer textureViewRendererf;
     private Button btnHangup;
+    private Button btnSwitch;
+    private Button btnCloseVideo;
+    private Button btnCloseAudio;
+    private TextView state;
+
     private CallStateEnum callingState = CallStateEnum.UNKNOWN;
     private AVChatVideoCapturer mVideoCapturer;
     private AVChatData avChatData;
     private boolean destroyRTC = false;
+    private ViewControlHanlder mHandler;
+    private CountTimeThread countTimeThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +68,17 @@ public class AVChatActivity extends Activity {
         setContentView(R.layout.activity_avchat);
         initUI();
         registerObserves(true);
+
     }
 
     private void initUI() {
         mtextureViewRenderer = (AVChatSurfaceViewRenderer) findViewById(R.id.tvr);
         textureViewRendererf = (AVChatSurfaceViewRenderer) findViewById(R.id.tvr_friendd);
         btnHangup = (Button) findViewById(R.id.hangup);
+        btnSwitch = findViewById(R.id.switc);
+        btnCloseVideo = findViewById(R.id.video_close);
+        btnCloseAudio = findViewById(R.id.audio_close);
+        state = findViewById(R.id.state);
         textureViewRendererf.setZOrderOnTop(true);
         switch (getIntent().getIntExtra(KEY_SOURCE,-1)){
             case FROM_BROADCASTRECEIVER:
@@ -312,6 +331,9 @@ public class AVChatActivity extends Activity {
         public void onCallEstablished() {
             Log.e(TAG,"建立稳定链接");
             btnHangup.setVisibility(View.VISIBLE);
+            mHandler = new ViewControlHanlder(AVChatActivity.this);
+            countTimeThread = new CountTimeThread(5);
+            countTimeThread.start();
         }
 
     };
@@ -323,4 +345,86 @@ public class AVChatActivity extends Activity {
         }
     };
 
+
+    /*****************无操作控件消失********************/
+    class ViewControlHanlder extends Handler{
+
+        private final int MSG_HIDE= 0x001;
+
+        private WeakReference<AVChatActivity> weakRef;
+
+        ViewControlHanlder(AVChatActivity avChatActivity){
+            weakRef = new WeakReference<>(avChatActivity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            AVChatActivity avChatActivity = weakRef.get();
+
+            super.handleMessage(msg);
+            switch (msg.what){
+                case MSG_HIDE:
+                    avChatActivity.hinde();
+                    break;
+            }
+        }
+
+        public void sendHideControllMessage(){
+
+            obtainMessage(MSG_HIDE).sendToTarget();
+
+        }
+    }
+
+    private void hinde() {
+        btnCloseAudio.setVisibility(View.GONE);
+        btnCloseVideo.setVisibility(View.GONE);
+        btnSwitch.setVisibility(View.GONE);
+        btnHangup.setVisibility(View.GONE);
+        state.setVisibility(View.GONE);
+    }
+
+    class CountTimeThread extends Thread{
+
+        private long maxVisibleTime;
+        private long startVisibleTime;
+
+        public CountTimeThread(int second){
+            maxVisibleTime = second * 1000;//换算为毫秒
+            setDaemon(true);//设置为后台进程
+        }
+
+        private void reset() {
+            startVisibleTime = System.currentTimeMillis();
+        }
+
+        public void run() {
+
+            startVisibleTime = System.currentTimeMillis();//初始化开始时间
+            while (true) {
+                if (startVisibleTime + maxVisibleTime < System.currentTimeMillis()) {
+                    mHandler.sendHideControllMessage();
+                    startVisibleTime = System.currentTimeMillis();
+                }
+            }
+        }
+    }
+
+    //触碰事件
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN){
+            boolean isVisable = (btnHangup.getVisibility()==View.VISIBLE);
+            if(!isVisable){
+                btnCloseAudio.setVisibility(View.VISIBLE);
+                btnCloseVideo.setVisibility(View.VISIBLE);
+                btnSwitch.setVisibility(View.VISIBLE);
+                btnHangup.setVisibility(View.VISIBLE);
+                state.setVisibility(View.VISIBLE);
+            }
+        }
+        return super.onTouchEvent(event);
+    }
 }

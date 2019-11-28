@@ -1,0 +1,50 @@
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+    defaultConfig {
+        applicationId "com.example.nimdemo"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+
+    implementation 'com.android.support:appcompat-v7:26.0.0-beta1'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.netease.nimlib:basesdk:7.0.0'
+    implementation 'com.netease.nimlib:nrtc:7.0.0'
+    implementation 'com.netease.nimlib:avchat:7.0.0'
+
+//    implementation 'com.netease.nimlib:basesdk:6.1.0'
+//    implementation 'com.netease.nimlib:nrtc:6.1.0'
+//    implementation 'com.netease.nimlib:avchat:6.1.0'
+
+    implementation 'com.android.support:design:26.0.0-beta1'
+    testImplementation 'junit:junit:4.12'
+}

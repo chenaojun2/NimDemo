@@ -102,8 +102,9 @@
             android:exported="false"
             android:process=":core" />
 
-        <activity android:name=".AVChatActivity" />
-        <activity android:name=".ChatRoomActivity"></activity>
+        <activity android:name=".AVChatActivity"
+            android:screenOrientation="landscape"/>
+        <activity android:name=".ChatRoomActivity"/>
     </application>
 
 </manifest>

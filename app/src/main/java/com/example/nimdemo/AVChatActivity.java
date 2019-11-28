@@ -1,5 +1,6 @@
 package com.example.nimdemo;
 
+import android.app.Activity;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -29,7 +30,7 @@ import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturer;
 import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturerFactory;
 
 
-public class AVChatActivity extends AppCompatActivity {
+public class AVChatActivity extends Activity {
 
     public static final int FROM_BROADCASTRECEIVER = 0; // 来自广播
     public static final int FROM_INTERNAL = 1; // 来自发起方

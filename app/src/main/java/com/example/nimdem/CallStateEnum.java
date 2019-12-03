@@ -1,6 +1,4 @@
-package com.example.nimdemo;
-
-import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+package com.example.nimdem;
 
 /**
  * Created by 陈澳军 on 2019/11/19.

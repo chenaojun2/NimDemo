@@ -1,4 +1,4 @@
-package com.example.nimdemo;
+package com.example.nimdem;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

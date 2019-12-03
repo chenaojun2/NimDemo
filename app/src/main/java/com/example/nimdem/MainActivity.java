@@ -1,9 +1,6 @@
-package com.example.nimdemo;
+package com.example.nimdem;
 
-import android.*;
 import android.Manifest;
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,7 +9,6 @@ import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,8 +26,8 @@ import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
-
-import static android.R.attr.data;
+import com.netease.nimlib.sdk.msg.MsgService;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 
 public class MainActivity extends AppCompatActivity {
     private static final String KRY_CALL_CONFIG = "KEY_CALL_CONFIG";
@@ -48,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     Button call_btn;
     Button create_btn;
     Button add_btn;
+    Button t_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +53,19 @@ public class MainActivity extends AppCompatActivity {
         requestPermission();
         initUI();
         initListener();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NIMClient.getService(MsgService.class).setChattingAccount("895941515", SessionTypeEnum.None);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        NIMClient.getService(MsgService.class).setChattingAccount(MsgService.MSG_CHATTING_ACCOUNT_NONE, SessionTypeEnum.P2P);
     }
 
     private void initListener() {
@@ -83,7 +93,14 @@ public class MainActivity extends AppCompatActivity {
                 addRoom();
             }
         });
-        AVChatManager.getInstance().observeIncomingCall(observerInComingCall,true);
+        t_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,Main2Activity.class);
+                startActivity(intent);
+            }
+        });
+        //AVChatManager.getInstance().observeIncomingCall(observerInComingCall,true);
 
     }
 
@@ -93,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         call_btn = (Button) findViewById(R.id.button2);
         create_btn = (Button) findViewById(R.id.button3);
         add_btn = (Button) findViewById(R.id.button4);
+        t_btn = findViewById(R.id.button5);
     }
 
     private void requestPermission() {
@@ -164,12 +182,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void receiveCall(AVChatData data){
-        Toast.makeText(MainActivity.this, "建立连接", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(MainActivity.this,AVChatActivity.class);
+    public static void receiveCall(AVChatData data){
+        Toast.makeText(NimApplication.getContext(), "建立连接", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(NimApplication.getContext(),AVChatActivity.class);
         intent.putExtra(KEY_SOURCE,AVChatActivity.FROM_BROADCASTRECEIVER);
         intent.putExtra(KRY_CALL_CONFIG,data);
-        startActivity(intent);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        NimApplication.getContext().startActivity(intent);
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

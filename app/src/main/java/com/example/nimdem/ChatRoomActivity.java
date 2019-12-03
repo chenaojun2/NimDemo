@@ -1,4 +1,4 @@
-package com.example.nimdemo;
+package com.example.nimdem;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -6,8 +6,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.example.nimdemo.adapter.ChatRoomAdapter;
-import com.example.nimdemo.observer.SimpleAVChatStateObserver;
+import com.example.nimdem.adapter.ChatRoomAdapter;
+import com.example.nimdem.observer.SimpleAVChatStateObserver;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;

@@ -1,4 +1,4 @@
-package com.example.nimdemo.adapter;
+package com.example.nimdem.adapter;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -6,10 +6,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.example.nimdemo.NimApplication;
-import com.example.nimdemo.R;
+import com.example.nimdem.NimApplication;
+import com.example.nimdem.R;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
 import com.netease.nimlib.sdk.avchat.constant.AVChatVideoScalingType;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;

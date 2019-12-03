@@ -1,4 +1,4 @@
-package com.example.nimdemo;
+package com.example.nimdem;
 
 import android.app.Activity;
 import android.media.AudioFormat;
@@ -6,7 +6,6 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -14,7 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.example.nimdemo.observer.SimpleAVChatStateObserver;
+import com.example.nimdem.observer.SimpleAVChatStateObserver;
 
 
 import com.netease.nimlib.sdk.Observer;
@@ -29,8 +28,8 @@ import com.netease.nimlib.sdk.avchat.model.AVChatCommonEvent;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.netease.nimlib.sdk.avchat.model.AVChatNotifyOption;
 import com.netease.nimlib.sdk.avchat.model.AVChatParameters;
+import com.netease.nimlib.sdk.avchat.video.AVChatCameraCapturer;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
-import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturer;
 import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturerFactory;
 
 import java.lang.ref.WeakReference;
@@ -56,11 +55,12 @@ public class AVChatActivity extends Activity {
     private TextView state;
 
     private CallStateEnum callingState = CallStateEnum.UNKNOWN;
-    private AVChatVideoCapturer mVideoCapturer;
+    private AVChatCameraCapturer mVideoCapturer;
     private AVChatData avChatData;
     private boolean destroyRTC = false;
     private ViewControlHanlder mHandler;
     private CountTimeThread countTimeThread;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +68,7 @@ public class AVChatActivity extends Activity {
         setContentView(R.layout.activity_avchat);
         initUI();
         registerObserves(true);
+
 
     }
 
@@ -80,6 +81,7 @@ public class AVChatActivity extends Activity {
         btnCloseAudio = findViewById(R.id.audio_close);
         state = findViewById(R.id.state);
         textureViewRendererf.setZOrderOnTop(true);
+
         switch (getIntent().getIntExtra(KEY_SOURCE,-1)){
             case FROM_BROADCASTRECEIVER:
                 receiveInComingCall();
@@ -98,6 +100,30 @@ public class AVChatActivity extends Activity {
         AVChatManager.getInstance().observeAVChatState(avchatStateObserver, register);
         AVChatManager.getInstance().observeHangUpNotification(callHangupObserver, register);
         btnHangup.setOnClickListener(clickListener);
+        btnCloseAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleMute();
+            }
+        });
+
+        btnSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchCamera();
+            }
+        });
+
+        btnCloseVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!AVChatManager.getInstance().isLocalVideoMuted()) {
+                    AVChatManager.getInstance().muteLocalVideo(true);
+                }else{
+                    AVChatManager.getInstance().muteLocalVideo(false);
+                }
+            }
+        });
     }
 
     private void outGoingCalling(String account, final AVChatType callTypeEnum) {
@@ -277,6 +303,20 @@ public class AVChatActivity extends Activity {
         finish();
     }
 
+    public void toggleMute() {
+        if (!AVChatManager.getInstance().isLocalAudioMuted()) { // isMute是否处于静音状态
+            // 关闭音频
+            AVChatManager.getInstance().muteLocalAudio(true);
+        } else {
+            // 打开音频
+            AVChatManager.getInstance().muteLocalAudio(false);
+        }
+    }
+
+    public void switchCamera() {
+        mVideoCapturer.switchCamera();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -323,8 +363,9 @@ public class AVChatActivity extends Activity {
         @Override
         public void onUserJoined(String account) {
             Log.e(TAG,account+"加入");
-            boolean a = AVChatManager.getInstance().setupRemoteVideoRender(account,textureViewRendererf,false,AVChatVideoScalingType.SCALE_ASPECT_BALANCED);
-            Log.e(TAG,"加载画布"+a);
+            AVChatManager.getInstance().setupLocalVideoRender(textureViewRendererf,false,AVChatVideoScalingType.SCALE_ASPECT_BALANCED);
+            AVChatManager.getInstance().setupRemoteVideoRender(account,mtextureViewRenderer,false,AVChatVideoScalingType.SCALE_ASPECT_BALANCED);
+
         }
 
         @Override
@@ -334,6 +375,7 @@ public class AVChatActivity extends Activity {
             mHandler = new ViewControlHanlder(AVChatActivity.this);
             countTimeThread = new CountTimeThread(5);
             countTimeThread.start();
+
         }
 
     };

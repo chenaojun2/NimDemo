@@ -1,4 +1,4 @@
-package com.example.nimdemo.observer;
+package com.example.nimdem.observer;
 
 import com.netease.nimlib.sdk.avchat.AVChatStateObserver;
 import com.netease.nimlib.sdk.avchat.model.AVChatAudioFrame;

@@ -1,4 +1,4 @@
-package com.example.nimdemo;
+package com.example.nimdem;
 
 import org.junit.Test;
 
